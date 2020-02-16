@@ -238,8 +238,8 @@ lowerleft <- overlap_matrix %>%
   scale_alpha_manual(values = c(0.8, 0),  #color the grid for Y, don't color for N. 
                      limits = c("Y", "N")) +
   scale_y_discrete(labels = NULL) +
-  scale_x_discrete(labels = NULL) +
-  labs(x = " ", #I left a white space here so that it will be better aligned w/ the bar plot next to it 
+  scale_x_discrete(labels = rep(" ", length(sets))) + #I left white space here for better alignment w/ extended plots 
+  labs(x = " ", #white space for better alignment w/ right side plots 
        y = "overlap") +
   theme_minimal() +
   theme(legend.position = "none") +
@@ -300,7 +300,8 @@ lowerright <- overlap_sizes %>%
   geom_vline(xintercept = -Inf, size = 1.5) +
   geom_bar(stat = "identity", fill = "grey80", color = NA, alpha = 0.8) +
   geom_text(aes(label = overlap_sizes, y = 0), size = 5, hjust = 0, vjust = 0.5, fontface = "bold") +
-  scale_y_continuous(labels = NULL) +
+  scale_y_continuous(breaks = c(0, max(overlap_sizes$overlap_sizes)) ,
+                     labels = rep(" ", 2)) + #I left white space here for better alignment w/ extended plots
   scale_x_discrete(labels = NULL) +
   labs(y = "intersect. sizes",
        x = NULL) +
@@ -345,7 +346,7 @@ lowerleft_3only <- overlap_matrix %>%
   scale_alpha_manual(values = c(0.8, 0),
                      limits = c("Y", "N")) +
   scale_y_discrete(labels = NULL) +
-  scale_x_discrete(labels = NULL) +
+  scale_x_discrete(labels = rep(" ", length(sets))) +
   labs(x = " ", #I left a white space here so that it will be better aligned w/ the bar plot next to it 
        y = "overlap") +
   theme_minimal() +
@@ -365,7 +366,8 @@ lowerright_3only <- overlap_sizes %>%
   geom_vline(xintercept = -Inf, size = 1.5) +
   geom_bar(stat = "identity", fill = "grey80", color = NA, alpha = 0.8) +
   geom_text(aes(label = overlap_sizes, y = 0), size = 5, hjust = 0, vjust = 0.5, fontface = "bold") +
-  scale_y_continuous(labels = NULL) +
+   scale_y_continuous(breaks = c(0, max(overlap_sizes$overlap_sizes)) ,
+                     labels = rep(" ", 2)) + #I left white space here for better alignment w/ extended plots 
   scale_x_discrete(labels = NULL) +
   labs(y = "intersect. sizes",
        x = NULL) +
@@ -477,13 +479,13 @@ farright_plot <- intersection_data %>%
   geom_quasirandom(shape = 21, color = "white", fill = "grey20", position = position_jitter(0.1), alpha = 0.8) +
   geom_boxplot(outlier.shape  = NA, width = 0.7, fill = "skyblue1", alpha = 0.5) +
   theme_minimal()+
-  scale_y_continuous(labels = NULL) +
+  scale_y_continuous() +
   scale_x_discrete(labels = NULL) +
   labs(y = "response",
        x = NULL) +
   theme_minimal() +
   theme(text = element_text(size= 18, face="bold")) +
-  theme(axis.text.x=element_text(colour = "black", angle = 45, hjust = 1)) +
+  theme(axis.text.x=element_text(colour = "black")) +
   theme(axis.text.y=element_text(colour = "black")) +
   coord_flip()
 
