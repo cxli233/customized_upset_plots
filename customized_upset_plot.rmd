@@ -1,0 +1,206 @@
+---
+title: "Customized_upset_plot"
+author: "Chenxin Li"
+date: "1/22/2020"
+output: 
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  html_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Dependencies 
+If you have Tidyverse and cowplot you are mostly covered. If you want to save plot as .svg you will need svglite. If you are using Mac, you need XQuart. Link = https://www.xquartz.org/ 
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(readr)
+library(readxl)
+library(stringr)
+library(svglite)  
+library(cowplot)
+```
+
+#arrange data
+```{r}
+#don't forget to change working directory 
+table_1_data <- read_excel("C:/Users/cxli9/Desktop/Li/PBI/PBI299 (Sundar Lab)/smRNA project/CLVS_smRNA_revision/table_1_data.xlsx")
+head(table_1_data)                                                 
+
+#In this example, the total set sizes (first 3 rows) and intersection sizes (the rest of the rows) are already given. 
+```
+
+
+```{r}
+table_1_left <- table_1_data[,1:2] %>% 
+  mutate(`24nt siRNA loci` = factor(`24nt siRNA loci`, levels = c(
+    "intersection", 
+    "sperm-egg_intersection",
+    "sperm-seedling_intersection",
+    "egg-seedling_intersection",
+    "sperm_specific",
+    "seedling_specific",
+    "egg_specific",
+    "sperm",
+    "seedling",
+    "egg"
+  ))) 
+table_1_left
+```
+#total set size
+```{r}
+total <- table_1_left %>% 
+  filter(`24nt siRNA loci` == "egg"|
+           `24nt siRNA loci` == "seedling"|
+           `24nt siRNA loci` == "sperm") %>% 
+  mutate(sample_type = `24nt siRNA loci`) %>% 
+  mutate(sample_type = factor(sample_type, levels = c(
+    "egg", 
+    "seedling",
+    "sperm"
+  )))
+total
+```
+```{r}
+upperleft <- total %>% 
+  ggplot(aes(x = sample_type, y= `loci count`)) +
+  # geom_hline(yintercept = -Inf, size = 1.5) +
+  # geom_vline(xintercept = -Inf, size = 1.5) +
+  geom_bar(stat = "identity", aes(fill = `24nt siRNA loci`), alpha = 0.8) +
+  geom_text(aes(label = as.character(`loci count`)), size = 5, angle = 90, hjust = 0, y = 10000) +
+  scale_fill_manual(values = c("tomato1", "seagreen", "dodgerblue2"),
+                    limits = c("egg", "seedling", "sperm")) +
+  scale_x_discrete(labels = NULL) +
+  scale_y_continuous(labels = NULL) +
+  labs(x = NULL,
+       y = "set size") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  theme(text = element_text(size= 18, face="bold")) +
+  theme(axis.text.x=element_text(colour = "black", angle = 45, hjust = 1)) +
+  theme(axis.text.y=element_text(colour = "black")) 
+
+upperleft
+```
+
+#overlap matrix
+```{r}
+sample_type <- c("egg", "seedling", "sperm")
+category <- c(
+    "egg-seedling-sperm_intersection", 
+    "sperm-egg_intersection",
+    "sperm-seedling_intersection",
+    "egg-seedling_intersection",
+    "sperm_specific",
+    "seedling_specific",
+    "egg_specific"
+    )
+overlap_matrix <- expand.grid(sample_type, category) %>% 
+  as.data.frame() 
+
+colnames(overlap_matrix) <- c("sample_type", "category")
+
+overlap_matrix <- overlap_matrix %>% 
+  mutate(intersect = case_when(
+    str_detect(category, sample_type %>% as.character()) ~ "Y",
+    str_detect(category, sample_type %>% as.character()) == F ~ "N"
+  ))
+
+ 
+
+  # mutate(intersect = c(
+  #   "Y", "Y", "Y",
+  #   "Y", "N", "Y",
+  #   "N", "Y", "Y",
+  #   "Y", "Y", "N",
+  #   "N", "N", "Y",
+  #   "N", "Y", "N",
+  #   "Y", "N", "N"
+  # ))
+
+overlap_matrix
+```
+```{r}
+lowerleft <- overlap_matrix %>% 
+  ggplot(aes(x = sample_type, y = category))+
+  geom_tile(aes(fill = sample_type, alpha = intersect), color = "black", size = 1.5) +
+  scale_fill_manual(values = c("tomato1", "seagreen", "dodgerblue2"),
+                    limits = c("egg", "seedling", "sperm")) +
+  scale_alpha_manual(values = c(0.8, 0),
+                     limits = c("Y", "N")) +
+  scale_y_discrete(labels = NULL) +
+  scale_x_discrete(labels = NULL) +
+  labs(x = NULL,
+       y = "overlap") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(text = element_text(size= 18, face="bold")) +
+  theme(axis.text.x=element_text(colour = "black")) +
+  theme(axis.text.y=element_text(colour = "black")) 
+
+lowerleft
+```
+```{r}
+upperright <- NULL
+upperright
+```
+
+#barchart 
+```{r}
+lowerright <- table_1_left[4:10, ] %>% 
+  mutate(count_text = as.character(`loci count`)) %>% 
+  ggplot(aes(y = `loci count`, x = `24nt siRNA loci`)) +
+  #geom_hline(yintercept = -Inf, size = 1.5) +
+  #geom_vline(xintercept = -Inf, size = 1.5) +
+  geom_bar(stat = "identity", fill = "grey60", color = NA, alpha = 0.8) +
+  geom_text(aes(label = count_text, y = 100), size = 5, hjust = 0, vjust = 0.5) +
+  scale_y_continuous(labels = NULL) +
+  scale_x_discrete(labels = NULL) +
+  labs(y = NULL,
+       x = NULL) +
+  theme_classic() +
+  theme(text = element_text(size= 18, face="bold")) +
+  theme(axis.text.x=element_text(colour = "black", angle = 45, hjust = 1)) +
+  theme(axis.text.y=element_text(colour = "black", size = 12)) +
+  coord_flip()
+
+lowerright
+```
+```{r}
+legend.source <- total %>% 
+  ggplot(aes(x = sample_type, y= `loci count`)) +
+  # geom_hline(yintercept = -Inf, size = 1.5) +
+  # geom_vline(xintercept = -Inf, size = 1.5) +
+  geom_bar(stat = "identity", aes(fill = `24nt siRNA loci`), alpha = 0.8) +
+  geom_text(aes(label = as.character(`loci count`)), size = 5, angle = 90, hjust = 0, y = 10000) +
+  scale_fill_manual(values = c("tomato1", "seagreen", "dodgerblue2"),
+                    limits = c("egg", "seedling", "sperm")) +
+  labs(fill = NULL) +
+  theme_minimal() +
+  theme(text = element_text(size= 18, face="bold")) +
+  theme(axis.text.x=element_text(colour = "black", angle = 45, hjust = 1)) +
+  theme(axis.text.y=element_text(colour = "black"))
+
+legend <- get_legend(legend.source)
+```
+
+#put them all together
+```{r}
+plot_grid(upperleft, legend, lowerleft, lowerright, 
+          nrow = 2, 
+          ncol = 2,
+          rel_heights = c(0.33, 1),
+          rel_widths = c(1, 0.8))
+
+ggsave("upset.svg", height = 4, width = 3)
+ggsave("upset.png", height = 4, width = 3)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
