@@ -34,7 +34,7 @@ library(cowplot)
 #Load your data here when you do your acutal thing 
 #e.g. data1 <- read_delim(...) 
 
-set.seed(233333) #set seed to make simulations reproducible, not needed for actual data 
+set.seed(6) #set seed to make simulations reproducible, not needed for actual data 
 
 data1 <- data.frame(
   "elements" = round(runif(n = 30, min = 0, max = 100))
@@ -385,7 +385,7 @@ plot_grid(upperleft, upperright, lowerleft_3only, lowerright_3only,
           nrow = 2, 
           ncol = 2,
           rel_heights = c(1, 2.5), #this time the lower part can be shorter because there're less rows 
-          rel_widths = c(1, 0.8))
+          rel_widths = c(0.9, 1))
 
 ggsave("upset_3only.svg", height = 4.5, width = 3.5) #this time the plot can be shorter 
 #the best aspect ratio is when the grids in the colored matrix are perfect squares 
@@ -473,7 +473,7 @@ library(ggbeeswarm) #this is required for quasirandom jittering of dots
 ```{r}
 farright_plot <- intersection_data %>% 
   filter(is.na(category) == F) %>% 
-  ggplot(aes(x = category, y = elements)) +
+  ggplot(aes(x = category, y = values)) +
   geom_hline(yintercept = -Inf, size = 1.5) +
   geom_vline(xintercept = -Inf, size = 1.5) +
   geom_quasirandom(shape = 21, color = "white", fill = "grey20", position = position_jitter(0.1), alpha = 0.8) +
