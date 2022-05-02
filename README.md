@@ -1,5 +1,8 @@
 # customized_upset_plots
 Make customized upset plots: from raw data to plots.
+
+![Example Output](https://github.com/cxli233/customized_upset_plots/blob/master/EQ7NyQJUwAAc7X6.png)
+
 The code is in .Rmd format.
 
 
