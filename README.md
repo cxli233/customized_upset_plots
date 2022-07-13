@@ -1,15 +1,15 @@
-# customized_upset_plots
-Make customized upset plots: from raw data to plots.
+# Customized Upset Plots
+This repository contains scripts to produce customized upset plots, an alternative to Venn Diagrams. 
 
-![Example Output](https://github.com/cxli233/customized_upset_plots/blob/master/EQ7NyQJUwAAc7X6.png)
+ Author: Chenxin Li, postdoctoral associate at Center for Applied Genetic Technologies, University of Georgia. 
 
-The code is in .Rmd format.
+ Contact: [Chenxin.Li@uga.edu](Chenxin.Li@uga.edu)
 
+The `Scripts/` directory contains `.Rmd` files that generate the graphics shown below. 
+It requires R, RStudio, and the rmarkdown package. 
 
-The Feb 17 2020 version simulates 4 sets and allow you to quickly run it and try it out. 
-
-The Feb 18 2020 version requires 4 datasets (in data folder) and is tailored towards them. 
-
-contact: Chenxin Li Chenxin.Li@uga.edu    
+* R: [R Download](https://cran.r-project.org/bin/)
+* RStudio: [RStudio Download](https://www.rstudio.com/products/rstudio/download/)
+* rmarkdown can be installed using the intall packages interface in RStudioThe code is in .Rmd format.
 
 If you use this code for a publication, I'd greatly appreciate if you can acknowledge this repository. 
