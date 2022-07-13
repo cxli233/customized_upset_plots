@@ -1,0 +1,10 @@
+Example data files for "customized_upset_plot_2022_07_13_real_data.Rmd". 
+
+
+These are 4 different small RNA datasets. 
+Data from [Li et al. 2020. Genome Research](https://www.ncbi.nlm.nih.gov/pubmed/31896557) 
+
+* 1st column = genome location. This is what we'll find intersection for.
+* 2nd column = their small RNA relative abundance (expression), in units of RPM.
+* last column = cell type.
+
