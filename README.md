@@ -35,7 +35,7 @@ The lower right corner of the upset plot can be extended to plot other response 
 
 ![Example with extended lower right corner](https://github.com/cxli233/customized_upset_plots/blob/master/Results/upset_extended.svg) 
 
-# Try it out with read data!
+# Try it out with real data!
 I also provided some example data. 
 Data from [Li et al., 2020, Genome Research](https://www.ncbi.nlm.nih.gov/pubmed/31896557)
 
