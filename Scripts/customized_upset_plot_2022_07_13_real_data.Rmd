@@ -381,13 +381,13 @@ plot_grid(upperleft, upperright, lowerleft, lowerright,
           rel_heights = c(1, 4), # the more rows in the lower part, the longer it should be
           rel_widths = c(1, 0.8))
 
-ggsave("../Results/real_data_upset_full.svg", height = 7, width = 3.5) 
+ggsave("../Results/real_data_upset_full.svg", height = 7, width = 3.5, bg = "white") 
 # this should be a tall & skinny plot 
 # I prefer .svg, but you can also save as phd or png 
 # I will open up the .svg file and mannually adjust the size until it's good
 # check that nothing is cut off from the plot 
 # png is for twitter posting 
-ggsave("../Results/real_data_upset_full.png", height = 7, width = 3.5)
+ggsave("../Results/real_data_upset_full.png", height = 7, width = 3.5, bg = "white")
 ```
 
 # Subsetting the inserctions
@@ -451,9 +451,10 @@ plot_grid(upperleft, upperright, lowerleft_3only, lowerright_3only,
           rel_heights = c(1, 2.5), # this time the lower part can be shorter because there're less rows 
           rel_widths = c(0.9, 1))
 
-ggsave("../Results/real_data_upset_3only.svg", height = 4.5, width = 3.5) # this time the plot can be shorter 
+ggsave("../Results/real_data_upset_3only.svg", height = 4.5, width = 3.5, bg = "white") 
+# this time the plot can be shorter 
 # the best aspect ratio is when the grids in the colored matrix are perfect squares 
-ggsave("../Results/real_data_upset_3only.png", height = 4.5, width = 3.5) 
+ggsave("../Results/real_data_upset_3only.png", height = 4.5, width = 3.5, bg = "white") 
 ```
 
 
@@ -587,8 +588,9 @@ plot_grid(upperleft, upperright, NULL,
           rel_heights = c(1, 3),  
           rel_widths = c(0.8, 0.8, 1)) # the more stuff on the right, the thinner the left side has to be. 
 
-ggsave("../Results/real_data_upset_extended.svg", height = 7, width = 6) # this time the plot needs to be wider
-ggsave("../Results/real_data_upset_extended.png", height = 7, width = 6) 
+ggsave("../Results/real_data_upset_extended.svg", height = 7, width = 6, bg = "white") 
+# this time the plot needs to be wider
+ggsave("../Results/real_data_upset_extended.png", height = 7, width = 6, bg = "white") 
 ```
 
 
