@@ -1,5 +1,5 @@
 # Customized Upset Plots
-This repository contains scripts to produce customized upset plots, an alternative to Venn Diagrams. 
+This repository contains scripts to produce customized upset plots, an alternative to Venn diagrams. 
 
  Author: Chenxin Li, postdoctoral associate at Center for Applied Genetic Technologies, University of Georgia. 
 
@@ -12,8 +12,8 @@ It requires R, RStudio, and the rmarkdown package.
 * RStudio: [RStudio Download](https://www.rstudio.com/products/rstudio/download/)
 * rmarkdown can be installed using the intall packages interface in RStudioThe code is in .Rmd format.
 
-# Use Bar lengths to present set or subset sizes
-In Venn Diagrams, we use the area to represent set or subset sizes. 
+# Use bar lengths to present set or subset sizes
+In Venn diagrams, we use the area to represent set or subset sizes. 
 However, I have found it much easier to discern different lengths than different area. 
 
 ![Example with 4 sets](https://github.com/cxli233/customized_upset_plots/blob/master/Results/upset_full.svg)
