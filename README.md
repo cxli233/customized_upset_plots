@@ -44,3 +44,7 @@ Data from [Li et al., 2020, Genome Research](https://www.ncbi.nlm.nih.gov/pubmed
 # Conclusions
 I hope you like it and find it pretty. 
 If you use this code for a publication, I'd greatly appreciate if you can cite or acknowledge this repository. 
+
+
+[![DOI](https://zenodo.org/badge/240962726.svg)](https://zenodo.org/badge/latestdoi/240962726)
+
