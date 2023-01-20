@@ -1,0 +1,516 @@
+---
+title: "Customized_upset_plot"
+author: "Chenxin Li"
+date: "01/19/2023"
+output: 
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Introduction
+This is a workflow to generate upset plots with custom aesthetics. 
+
+# Dependencies 
+Main packages doing heavy lifting: 
+
+* tidyverse
+* ComplexHeatmap
+* patchwork 
+
+If you want to save plot as .svg you may need the R package svglite.
+If you are using Mac, you may need to install XQuart. [Link](https://www.xquartz.org/)  
+
+```{r}
+library(tidyverse) 
+library(patchwork) 
+library(ComplexHeatmap)
+
+library(RVenn) # Only required if you want Venn diagrams 
+library(RColorBrewer) # This is for the colors only, not actually necessary  
+library(ggbeeswarm) # Only required if you want quasirandom jittering of dots for mean separation plots 
+```
+
+
+# Data
+```{r}
+# this chunk generates the data 
+# Load your data here when you do your actual thing 
+# e.g. data1 <- read_delim(...) 
+
+set.seed(666) # set seed to make simulations reproducible, not needed for actual data 
+
+data1 <- data.frame(
+  "elements" = round(runif(n = 30, min = 0, max = 100))
+) %>% 
+  distinct(elements, .keep_all = T)
+
+data2 <- data.frame(
+  "elements" = round(runif(n = 150, min = 0, max = 200))
+) %>% 
+  distinct(elements, .keep_all = T)
+
+data3 <- data.frame(
+  "elements" = round(runif(n = 200, min = 0, max = 300))
+) %>% 
+  distinct(elements, .keep_all = T)
+
+data4 <- data.frame(
+  "elements" = round(runif(n = 60, min = 0, max = 100))
+) %>% 
+  distinct(elements, .keep_all = T)
+```
+
+# Create set list object
+```{r}
+set_list <- list(data1 = data1$elements, 
+                 data2 = data2$elements, 
+                 data3 = data3$elements, 
+                 data4 = data4$elements) # Change names for your own data 
+
+set_object <- RVenn::Venn(set_list)
+```
+
+The order of sets in the list matters. In this case: 
+
+1. data1
+2. data2
+3. data3
+4. data4 
+
+# Venn diagram for 2-3 sets 
+```{r}
+ggvenn(
+  set_object, slice = 1:3, 
+  thickness = 0.5,
+  alpha = 0.5, 
+  fill = brewer.pal(8, "Set2")
+) +
+  theme_void() +
+  theme(
+    legend.position = "none"
+  )
+
+ggsave("../Results/VennDiagram.svg", height = 4, width = 4, bg = "white")
+ggsave("../Results/VennDiagram.png", height = 4, width = 4, bg = "white")
+```
+
+# ComplexHeatmap for heavy-lyfting 
+```{r}
+combination_matrix <- make_comb_mat(set_list)
+set_names <- set_name(combination_matrix)
+set_names
+```
+
+## Total set size 
+```{r}
+total_set_sizes <- set_size(combination_matrix) %>% 
+  as.data.frame() %>% 
+  rename(sizes = ".") %>% 
+  mutate(Set = row.names(.)) 
+
+upperleft <- total_set_sizes %>% 
+  mutate(Set = reorder(Set, sizes)) %>% 
+  ggplot(aes(x = Set, y= sizes)) +
+  geom_bar(stat = "identity", aes(fill = Set), alpha = 0.8, width = 0.7) +
+  geom_text(aes(label = sizes), 
+            size = 5, angle = 90, hjust = 0, y = 1) +
+  scale_fill_manual(values = brewer.pal(4, "Set2"),  # feel free to use some other colors  
+                     limits = set_names) + 
+  labs(x = NULL,
+       y = "Set size",
+       fill = NULL) +
+  theme_classic() +
+  theme(legend.position = "right",
+        text = element_text(size= 14),
+        axis.ticks.y = element_blank(),
+        axis.text = element_blank()
+        ) 
+
+upperleft
+```
+## Legend 
+It's not easy to extract legend.
+But we can write a function for that.  
+```{r}
+get_legend <- function(p) {
+  tmp <- ggplot_gtable(ggplot_build(p))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  legend
+}
+```
+
+```{r}
+upperright <- get_legend(upperleft)
+```
+
+
+## Overlap sizes
+```{r}
+overlap_sizes <- comb_size(combination_matrix) %>% 
+  as.data.frame() %>% 
+  rename(overlap_sizes = ".") %>% 
+  mutate(category = row.names(.))
+
+head(overlap_sizes)
+```
+
+Categories are ordered by frequency. 
+```{r}
+lowerright <- overlap_sizes %>% 
+  mutate(category = reorder(category, -overlap_sizes)) %>% 
+  ggplot(aes(x = category, y = overlap_sizes)) +
+  geom_bar(stat = "identity", fill = "grey80", color = NA, alpha = 0.8, width = 0.7) +
+  geom_text(aes(label = overlap_sizes, y = 0), 
+            size = 5, hjust = 0, vjust = 0.5) +
+  labs(y = "Intersect sizes",
+       x = NULL) +
+  theme_classic() +
+  theme(text = element_text(size= 14, color = "black"),
+        axis.text =element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_text(hjust = 0),
+        ) +
+  coord_flip()
+
+lowerright
+```
+
+## Overlap matrix 
+```{r}
+overlap_matrix <- str_split(string = overlap_sizes$category, pattern = "", simplify = T) %>% 
+  as.data.frame() 
+
+colnames(overlap_matrix) <- set_names
+
+overlap_matrix_tidy <- overlap_matrix %>% 
+  cbind(category = overlap_sizes$category) %>% 
+  pivot_longer(cols = !category, names_to = "Set", values_to = "value") %>% 
+  full_join(overlap_sizes, by = "category") %>% 
+  full_join(total_set_sizes, by = "Set")
+
+head(overlap_matrix_tidy)
+```
+
+```{r}
+lowerleft <- overlap_matrix_tidy %>% 
+  mutate(category = reorder(category, -overlap_sizes)) %>%  
+  mutate(Set = reorder(Set, sizes)) %>%  
+  ggplot(aes(x = Set, y = category))+
+  geom_tile(aes(fill = Set, alpha = value), color = "grey30", size = 1) +
+  scale_fill_manual(values = brewer.pal(4, "Set2"), # feel free to use other colors 
+                    limits = set_names) +
+  scale_alpha_manual(values = c(0.8, 0),  # color the grid for 1, don't color for 0. 
+                     limits = c("1", "0")) +
+  labs(x = "Sets",  
+       y = "Overlap") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(color = "black", size= 14),
+        panel.grid = element_blank(),
+        axis.text = element_blank()
+        )
+
+lowerleft
+```
+ 
+## Put them all together
+```{r}
+wrap_plots(upperleft, upperright, lowerleft, lowerright, 
+          nrow = 2, 
+          ncol = 2,
+          heights = c(1, 4), # the more rows in the lower part, the longer it should be
+          widths = c(1, 0.8),
+          guides = "collect") &
+  theme(legend.position = "none")
+
+ggsave("../Results/upset_full.svg", height = 6, width = 3, bg = "white") 
+# this should be a tall & skinny plot 
+# I prefer .svg, but you can also save as phd or png 
+# I will open up the .svg file and mannually adjust the size until it's good
+# check that nothing is cut off from the plot 
+# png is for twitter posting 
+ggsave("../Results/upset_full.png", height = 6, width = 3, bg = "white")
+```
+
+# Subsetting the inserctions
+## Using ComplexHeatmap 
+Filtering of intersections can be done: 
+Examples: 
+
+* intersect size >= 4: `m2 <- combination_matrix[comb_size(combination_matrix) >= 4]`.
+* degree == 3: `m3 <- combination_matrix[comb_degree(combination_matrix) == 3]`.
+* only involving data1 & data2: `m4 <- combination_matrix[c("data1", "data2"), ]`
+
+Say you are only interested in the overlaps w/ data3.
+The code to filter for would be "..1.".
+Say you only want intersect w/ data2 and data3, the code would be ".11.". 
+
+```{r}
+category_of_interest3 <- data.frame(
+  category = overlap_sizes$category,
+  state = str_detect(overlap_sizes$category, 
+           "..1.")
+) %>% 
+  filter(state == T)
+
+combination_matrix3 <- combination_matrix[, category_of_interest3$category]
+set_names3 <- set_name(combination_matrix3)
+```
+
+The rest is repetition. 
+
+## Quick run down
+### Upperleft
+```{r}
+total_set_sizes3 <- set_size(combination_matrix3) %>% 
+  as.data.frame() %>% 
+  rename(sizes = ".") %>% 
+  mutate(Set = row.names(.)) 
+
+upperleft3 <- total_set_sizes3 %>% 
+  mutate(Set = reorder(Set, sizes)) %>% 
+  ggplot(aes(x = Set, y= sizes)) +
+  geom_bar(stat = "identity", aes(fill = Set), alpha = 0.8, width = 0.7) +
+  geom_text(aes(label = sizes), 
+            size = 5, angle = 90, hjust = 0, y = 1) +
+  scale_fill_manual(values = brewer.pal(4, "Set2"),  # feel free to use some other colors  
+                     limits = set_names3) + 
+  labs(x = NULL,
+       y = "Set size",
+       fill = NULL) +
+  theme_classic() +
+  theme(legend.position = "right",
+        text = element_text(size= 14),
+        axis.ticks.y = element_blank(),
+        axis.text = element_blank()
+        ) 
+
+upperleft3
+```
+### Upperright 
+```{r}
+upperright3 <- get_legend(upperleft3)
+```
+
+### Lowerright
+```{r}
+overlap_sizes3 <- comb_size(combination_matrix3) %>% 
+  as.data.frame() %>% 
+  rename(overlap_sizes = ".") %>% 
+  mutate(category = row.names(.))
+
+head(overlap_sizes3)
+```
+```{r}
+lowerright3 <- overlap_sizes3 %>% 
+  mutate(category = reorder(category, -overlap_sizes)) %>% 
+  ggplot(aes(x = category, y = overlap_sizes)) +
+  geom_bar(stat = "identity", fill = "grey80", color = NA, alpha = 0.8, width = 0.7) +
+  geom_text(aes(label = overlap_sizes, y = 0), 
+            size = 5, hjust = 0, vjust = 0.5) +
+  labs(y = "Intersect sizes",
+       x = NULL) +
+  theme_classic() +
+  theme(text = element_text(size= 14, color = "black"),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_text(hjust = 0),
+        axis.text = element_blank()
+        ) +
+  coord_flip()
+
+lowerright3
+```
+
+### Lowerleft
+```{r}
+overlap_matrix3 <- str_split(string = overlap_sizes3$category, pattern = "", simplify = T) %>% 
+  as.data.frame() 
+
+colnames(overlap_matrix3) <- set_name(combination_matrix3)
+
+overlap_matrix_tidy3 <- overlap_matrix3 %>% 
+  cbind(category = overlap_sizes3$category) %>% 
+  pivot_longer(cols = !category, names_to = "Set", values_to = "value") %>% 
+  full_join(overlap_sizes3, by = "category") %>% 
+  full_join(total_set_sizes3, by = "Set")
+
+head(overlap_matrix_tidy3)
+```
+```{r}
+lowerleft3 <- overlap_matrix_tidy3 %>% 
+  mutate(category = reorder(category, -overlap_sizes)) %>%  
+  mutate(Set = reorder(Set, sizes)) %>%  
+  ggplot(aes(x = Set, y = category))+
+  geom_tile(aes(fill = Set, alpha = value), color = "grey30", size = 1) +
+  scale_fill_manual(values = brewer.pal(4, "Set2"), # feel free to use other colors 
+                    limits = set_names3) +
+  scale_alpha_manual(values = c(0.8, 0),  # color the grid for 1, don't color for 0. 
+                     limits = c("1", "0")) +
+  labs(x = "Sets", 
+       y = "Overlap") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(color = "black", size= 14),
+        panel.grid = element_blank(),
+        axis.text = element_blank(),
+        )
+
+lowerleft3
+```
+### Put them together 
+```{r}
+wrap_plots(upperleft3, upperright3, lowerleft3, lowerright3, 
+          nrow = 2, 
+          ncol = 2,
+          heights = c(1, 2.5), # this time the lower part can be shorter because there're less rows 
+          widths = c(0.9, 1)) &
+  theme(legend.position = "none")
+
+ggsave("../Results/upset_3only.svg", height = 4.5, width = 3.5, bg = "white") 
+# this time the plot can be shorter 
+# the best aspect ratio is when the grids in the colored matrix are perfect squares 
+ggsave("../Results/upset_3only.png", height = 4.5, width = 3.5, bg = "white") 
+```
+
+# Extensions
+The upset plot can be extended. 
+You can add other plots (heatmap, dot plot, boxplot) to the top and side.
+These serve as annotation or extra data for the set or intersects. 
+With `patchwork` you just need to get creative. 
+
+```{r}
+full_data <- rbind(data1, data2, data3, data4) %>% 
+  distinct(elements, .keep_all = T) %>% 
+  cbind(response = rnorm(mean = 50, sd = 10, n = unite(set_object) %>% length()))
+  
+# Simulations are for examples only. No need this for actual data 
+# Just giving a value to each elements
+# Your data will already have this 
+
+head(full_data)
+```
+
+## Extract membership 
+You can extract intersect membership using `extract_comb()` from ComplexHeatmap. 
+But it's weirdly not vectorized, it only takes one intersect name (e.g., "1000") at a time. 
+But we can easily apply it to a list of categories and bind them back to a dataframe. 
+
+```{r}
+element_membership_and_value <- overlap_sizes$category %>% 
+  map(.f = extract_comb, m = combination_matrix) %>% 
+  map(.f = as.data.frame) %>% 
+  bind_rows(.id = "id") %>% 
+  full_join(
+    data.frame(
+      id = 1:15,
+      category = overlap_sizes$category
+    ) %>% 
+      mutate(id = as.character(id)), 
+    by = "id"
+  ) %>% 
+  rename(elements = ".x[[i]]") %>% 
+  full_join(full_data %>% 
+              mutate(elements = as.character(elements)), by = "elements")
+
+head(element_membership_and_value)
+```
+
+### Mean separation plots for subsets 
+
+```{r}
+extended_boxplot <- element_membership_and_value %>% 
+  full_join(overlap_sizes, by = "category") %>% 
+  mutate(category = reorder(category, -overlap_sizes)) %>% 
+  ggplot(aes(x = category, y = response)) +
+  geom_quasirandom(shape = 21, color = "white", 
+                   fill = "grey20", position = position_jitter(0.1), alpha = 0.8) +
+  geom_boxplot(outlier.shape  = NA, width = 0.5, alpha = 0.3, fill = "skyblue1") +
+  labs(y = "Response",
+       x = NULL) +
+  theme_classic() +
+  theme(text = element_text(size= 14),
+        axis.text=element_text(colour = "black"),
+        axis.text.y = element_blank()
+        ) +
+  coord_flip()
+
+extended_boxplot
+```
+In your actual data you can color the boxes or dots w/ factors of interest.  
+Note: box plots aren't that useful for categories with n < 30.
+This section can easily be replaced by a heatmap or a dot plot showing the mean of each subset. 
+
+## Set metadata 
+Let's say data1 and data2 are data derived from control;
+data3 and data4 are data derived from a stress treatment. 
+We can add that info to the `total_set_sizes` that we made earlier. 
+With real data, you can write a metadata table and join that with the `total_set_sizes` table. 
+
+```{r}
+metadata <- data.frame(
+  Set = c("data1", "data2", "data3", "data4"),
+  Condition = c("ctrl", "ctrl", "stress", "stress")
+)
+
+total_set_sizes_metadata <- total_set_sizes %>% 
+  full_join(metadata, by = "Set") 
+
+total_set_sizes_metadata
+```
+
+### Metadata annotation by heatmap 
+```{r}
+metadata_heatmap <- total_set_sizes_metadata %>% 
+  mutate(Set = reorder(Set, sizes)) %>% 
+  ggplot(aes(x = Set, y = "")) +
+  geom_tile(aes(fill = Condition), alpha = 0.8) +
+  scale_fill_manual(values = c("grey80", "tomato1"),  # feel free to use some other colors  
+                     limits = c("ctrl", "stress")) + 
+  guides(fill = guide_legend(title.position = "top")) +
+  labs(x = NULL,
+       y = NULL,
+       fill = "Condition") +
+  theme_void() +
+  theme(legend.position = "bottom",
+        text = element_text(size= 14),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()
+        ) 
+
+metadata_heatmap
+```
+### Blank space holder 
+```{r}
+blank <- data.frame(
+  x = 1:10,
+  y = 1:10
+) %>% 
+  ggplot(aes(x = x, y = y)) +
+  theme_void()
+```
+
+## Put them all together 
+```{r}
+wrap_plots(upperleft + 
+             theme(legend.position = "none"), upperright, blank, 
+          lowerleft, lowerright, extended_boxplot, 
+          metadata_heatmap, blank, blank,
+          nrow = 3, 
+          ncol = 3,
+          heights = c(0.3, 1, 0.05),  
+          widths = c(0.7,0.8, 1)) # the more stuff on the right, the thinner the left side has to be. 
+
+ggsave("../Results/upset_extended.svg", height = 5.8, width = 4.7, bg = "white") 
+# this time the plot needs to be wider
+ggsave("../Results/upset_extended.png", height = 5.8, width = 4.7, bg = "white") 
+```
+
+That's pretty much it. 
+
+
+
