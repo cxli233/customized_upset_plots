@@ -111,7 +111,7 @@ ggsave("../Results/VennDiagram_real_data.svg", height = 6, width = 6, bg = "whit
 ggsave("../Results/VennDiagram_real_data.png", height = 6, width = 6, bg = "white")
 ```
 
-# ComplexHeatmap for heavy-lyfting 
+# ComplexHeatmap for heavy lifting 
 ```{r}
 combination_matrix <- make_comb_mat(set_list)
 set_names <- set_name(combination_matrix)
@@ -250,7 +250,7 @@ ggsave("../Results/real_data_upset_full.svg", height = 6, width = 3, bg = "white
 ggsave("../Results/real_data_upset_full.png", height = 6, width = 3, bg = "white")
 ```
 
-# Subsetting the inserctions
+# Subsetting the intersects
 ## Using ComplexHeatmap 
 Filtering of intersections can be done: 
 Examples: 

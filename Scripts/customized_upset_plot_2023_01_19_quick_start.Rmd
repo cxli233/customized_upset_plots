@@ -81,7 +81,7 @@ ggvenn(
 ggsave("../Results/VennDiagram_quick_start.svg", height = 4, width = 4, bg = "white")
 ggsave("../Results/VennDiagram_quick_start.png", height = 4, width = 4, bg = "white")
 ```
-# ComplexHeatmap for heavy-lyfting 
+# ComplexHeatmap for heavy lifting 
 ```{r}
 comb_mat <- make_comb_mat(my_list)
 my_names <- set_name(comb_mat)
