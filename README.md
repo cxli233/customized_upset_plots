@@ -243,7 +243,7 @@ ggsave("../Results/quick_start.png", height = 3.5, width = 3, bg = "white")
 # Conclusions
 I hope you like it and find it pretty. 
 If you use this code for a publication, I'd greatly appreciate if you can cite or acknowledge this repository. 
-Doi: DOI: 10.5281/zenodo.7555525  
+DOI: 10.5281/zenodo.7555525  
 
 
 
