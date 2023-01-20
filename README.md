@@ -16,7 +16,7 @@ It requires R, RStudio, and the rmarkdown package.
 * rmarkdown can be installed using the intall packages interface in RStudio
 
 # Use bar lengths to present set or subset sizes
-In Venn diagrams, we use the area to represent set or subset sizes. 
+In Venn diagrams, we use area to represent set or subset sizes. 
 However, I have found it much easier to discern different lengths than different area. 
 
 ![Example with 4 sets](https://github.com/cxli233/customized_upset_plots/blob/master/Results/upset_full.svg)
@@ -89,7 +89,7 @@ my_list <- list(
   data2 = letters[3:13], 
   data3 = letters[6:18])
 ```
-The required input is a list of vector. 
+The required input is a list of vectors. 
 
 # If you want a Venn diagram
 ```{r}
@@ -110,19 +110,19 @@ ggsave("../Results/VennDiagram_quick_start.svg", height = 4, width = 4, bg = "wh
 ggsave("../Results/VennDiagram_quick_start.png", height = 4, width = 4, bg = "white")
 ```
 ![example venn diagram](https://github.com/cxli233/customized_upset_plots/blob/master/Results/VennDiagram_quick_start.svg)
+
 `ggVenn()` only goes up to 3 sets. For more sets, it is better to use upset plot. 
 
 # ComplexHeatmap for heavy lifting 
 ```{r}
 comb_mat <- make_comb_mat(my_list)
 my_names <- set_name(comb_mat)
-my_names
 ```
 `make_comb_mat()` from `ComplexHeatmap` calculate intersect/subset sizes. 
 `make_comb_mat()` produces a matrix object from the list of vectors. The matrix itself can be filtered for intersects/subsets of interst.  
 For examples, see [this .Rmd file](https://github.com/cxli233/customized_upset_plots/blob/master/Scripts/customized_upset_plot_2023_01_19_downstream_of_complexheatmap.Rmd) at section "Subsetting the intersects".  
 
-**The rest of code is to produces the 4 pieces that make up a customized upset plot. Since every step along the way is customizable, the result can be highly tailored towards the needs and taste of the user.**
+**The rest of code is to produce the 4 pieces that make up a customized upset plot. Since every step along the way is customizable, the result can be highly tailored towards the needs and taste of the user.**
 
 ## Total set size 
 ```{r}
