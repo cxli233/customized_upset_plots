@@ -73,7 +73,7 @@ Auxiliary dependencies:
 * The official way to install `ComplexHeatmap` is via `devtools::install_github("jokergoo/ComplexHeatmap")`, which requires the `devtools` package.
 * For mean separation plots, a suggested package is [ggbeeswarm](https://github.com/eclarke/ggbeeswarm), a violin plot, but with actual data points. 
 * For color palettes, suggested are `viridis` and `RColorBrewer` packages. 
-* If you want to save plot as .svg file, you may need the R package `svglite`. If you are using Mac, you may need to install XQuart. [Link](https://www.xquartz.org/)
+* If you want to save plot as .svg file, you may need the R package `svglite`. If you are using Mac, you may need to install [XQuart](https://www.xquartz.org/).
 
 # Getting started
 Here are example scripts for 3 sets. 
