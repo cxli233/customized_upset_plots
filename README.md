@@ -66,7 +66,6 @@ library(RVenn) # Only required if you want Venn diagrams
 library(RColorBrewer) # This is for the colors only, not actually necessary
 ```
 
-# Getting started 
 Auxiliary dependencies: 
 
 * For 2-3 sets, Venn diagrams can be made readily using the [RVenn package](https://cran.r-project.org/web/packages/RVenn/vignettes/vignette.html). The `ggVenn()` function from `RVenn` produces a ggplot object that is a Venn Diagram. 
