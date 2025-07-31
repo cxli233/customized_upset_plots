@@ -6,7 +6,7 @@ This repository contains scripts to produce customized upset plots, an alternati
 
  * Author: Chenxin Li Ph.D., Assistant Research Scientist at Department of Crop & Soil Sciences and Center for Applied Genetic Technologies, University of Georgia. 
 
- * Contact: [Chenxin.Li@uga.edu](Chenxin.Li@uga.edu) | [@ChenxinLi2](https://twitter.com/ChenxinLi2)
+ * Contact: lichen27@msu.edu | [@chenxinli2.bsky.social‬](https://bsky.app/profile/chenxinli2.bsky.social)
 
 The `Scripts/` directory contains `.Rmd` files that generate the graphics shown below. 
 It requires R, RStudio, and the rmarkdown package. 
