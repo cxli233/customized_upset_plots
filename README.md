@@ -4,8 +4,7 @@
 
 This repository contains scripts to produce customized upset plots, an alternative to Venn diagrams. 
 
- * Author: Chenxin Li Ph.D., Assistant Research Scientist at Department of Crop & Soil Sciences and Center for Applied Genetic Technologies, University of Georgia. 
-
+ * Author: Chenxin Li, Ph.D., Assistant Professor at Department of Plant Biology, Michigan State University.  
  * Contact: lichen27@msu.edu | [@chenxinli2.bsky.social‬](https://bsky.app/profile/chenxinli2.bsky.social)
 
 The `Scripts/` directory contains `.Rmd` files that generate the graphics shown below. 
